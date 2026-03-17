@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aura Metabolic Compass</title>
+  <style>
+    /* --- RESET & BASE --- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Inter', Helvetica, Arial, sans-serif;
+      background-color: #0c0c0c;
+      color: #e0e0e0;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    h1, h2, h3 {
+      font-weight: 600;
+      color: #fff;
+    }
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    /* --- LAYOUT WRAPPERS --- */
+    section {
+      padding: 80px 10%;
+    }
+    @media (max-width: 768px) {
+      section {
+        padding: 60px 6%;
+      }
+    }
+
+    /* --- HERO SECTION --- */
+    .hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      min-height: 100vh;
+      background: radial-gradient(circle at 50% 20%, rgba(0,255,200,0.1), transparent 70%), #0c0c0c;
+    }
+    .hero h1 {
+      font-size: 2.8rem;
+      margin-bottom: 1rem;
+      letter-spacing: -0.02em;
+    }
+    .hero p.tagline {
+      font-size: 1.2rem;
+      margin-bottom: 2rem;
+      color: #9fd0ff;
+    }
+    .hero .hero-image {
+      width: 300px;
+      height: 300px;
+      margin-bottom: 2rem;
+      background: linear-gradient(145deg, #121212, #1e1e1e);
+      border-radius: 50%;
+      box-shadow: 0 0 50px rgba(0,255,200,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255,255,255,0.2);
+      font-size: 0.9rem;
+      letter-spacing: 1px;
+    }
+    .cta-button {
+      background: linear-gradient(90deg, #00ffcc, #00aaff);
+      color: #0c0c0c;
+      border: none;
+      border-radius: 30px;
+      padding: 14px 36px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .cta-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 0 25px rgba(0,255,200,0.3);
+    }
+
+    /* --- THE PROBLEM --- */
+    .problem {
+      max-width: 800px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .problem p {
+      font-size: 1.1rem;
+      color: #b0b0b0;
+      margin-top: 1rem;
+    }
+
+    /* --- HOW IT WORKS --- */
+    .features {
+      text-align: center;
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 40px;
+      margin-top: 2rem;
+    }
+    .feature-card {
+      background: #141414;
+      border-radius: 12px;
+      padding: 30px;
+      border: 1px solid #1e1e1e;
+      transition: transform 0.3s ease, border-color 0.3s ease;
+    }
+    .feature-card:hover {
+      transform: translateY(-5px);
+      border-color: #00ffcc;
+    }
+    .feature-card h3 {
+      margin-bottom: 1rem;
+      color: #00d9ff;
+    }
+    .feature-card p {
+      color: #b5b5b5;
+      font-size: 0.95rem;
+    }
+
+    /* --- TARGET MARKET --- */
+    .target {
+      max-width: 750px;
+      margin: 0 auto;
+      text-align: center;
+      color: #c0c0c0;
+    }
+    .target h2 {
+      margin-bottom: 1rem;
+      color: #00ffcc;
+    }
+
+    /* --- FOOTER --- */
+    footer {
+      text-align: center;
+      padding: 40px 10%;
+      border-top: 1px solid #1e1e1e;
+      font-size: 0.9rem;
+      color: #777;
+    }
+    footer a {
+      color: #00aaff;
+      transition: color 0.2s ease;
+    }
+    footer a:hover {
+      color: #00ffcc;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HERO -->
+  <section class="hero">
+    <h1>Aura Metabolic Compass</h1>
+    <p class="tagline">Bridging the gap between feeling fine and optimal health.</p>
+    <div class="hero-image">[ Hero Image Placeholder ]</div>
+    <button class="cta-button" onclick="scrollToPreorder()">Pre-Order Now</button>
+  </section>
+
+  <!-- PROBLEM -->
+  <section class="problem">
+    <h2>The Problem</h2>
+    <p>Modern healthcare excels at detecting disease early — but not at optimizing health before symptoms appear. <strong>Aura</strong> bridges that gap: turning invisible metabolic signals into daily insights for proactive, pre-symptomatic health optimization.</p>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="features">
+    <h2>How It Works</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <h3>Breath Capture</h3>
+        <p>Just 5 seconds each day. Aura collects your exhaled VOCs for precise metabolic measurement.</p>
+      </div>
+      <div class="feature-card">
+        <h3>Molecular Analysis</h3>
+        <p>Our sensor detects biomarkers like Acetone, Ammonia, and Methane — key indicators of fat burn, protein load, and gut health.</p>
+      </div>
+      <div class="feature-card">
+        <h3>AI‑Driven Insights</h3>
+        <p>Aura’s app delivers an intuitive “Internal Weather Report,” transforming data into actionable lifestyle recommendations.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- TARGET MARKET -->
+  <section class="target" id="preorder">
+    <h2>Target Market</h2>
+    <p>Designed for high-performing urban professionals who view their body as an investment — entrepreneurs, executives, and wellness‑focused individuals seeking an edge in performance and longevity.</p>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    &copy; 2024 Aura Metabolic Compass. All rights reserved. |
+    <a href="mailto:contact@auracompass.com">contact@auracompass.com</a>
+  </footer>
+
+  <!-- BASIC JAVASCRIPT -->
+  <script>
+    function scrollToPreorder() {
+      document.getElementById('preorder').scrollIntoView({ behavior: 'smooth' });
+    }
+  </script>
+
+</body>
+</html>
