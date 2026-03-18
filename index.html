@@ -1,236 +1,644 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Aura Metabolic Compass</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet" />
+ 
   <style>
-    /* --- RESET & BASE --- */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+    /* ── TOKENS ────────────────────────────────────────── */
+    :root {
+      --bg:        #080b0f;
+      --surface:   #0e1318;
+      --border:    rgba(255,255,255,0.06);
+      --accent-a:  #00ffc2;
+      --accent-b:  #0099ff;
+      --accent-c:  #b06bff;
+      --text-hi:   #f0f4f8;
+      --text-mid:  #8a9ab0;
+      --text-lo:   #3d4f62;
+      --radius-sm: 8px;
+      --radius-md: 16px;
+      --radius-lg: 28px;
+      --ease-out:  cubic-bezier(0.22, 1, 0.36, 1);
     }
+ 
+    /* ── RESET ──────────────────────────────────────────── */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
     body {
-      font-family: 'Inter', Helvetica, Arial, sans-serif;
-      background-color: #0c0c0c;
-      color: #e0e0e0;
-      line-height: 1.6;
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text-hi);
+      line-height: 1.65;
       overflow-x: hidden;
     }
-    h1, h2, h3 {
+    img { display: block; max-width: 100%; }
+    button { font-family: inherit; cursor: pointer; }
+    a { color: inherit; text-decoration: none; }
+ 
+    /* ── NOISE OVERLAY ──────────────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.45;
+    }
+ 
+    /* ── TYPOGRAPHY ─────────────────────────────────────── */
+    .label {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.7rem;
       font-weight: 600;
-      color: #fff;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent-a);
     }
-    a {
-      text-decoration: none;
-      color: inherit;
+ 
+    /* ── NAV ────────────────────────────────────────────── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 6%;
+      backdrop-filter: blur(18px) saturate(1.4);
+      -webkit-backdrop-filter: blur(18px) saturate(1.4);
+      background: rgba(8,11,15,0.72);
+      border-bottom: 1px solid var(--border);
     }
-
-    /* --- LAYOUT WRAPPERS --- */
-    section {
-      padding: 80px 10%;
+    .nav-logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1.05rem;
+      letter-spacing: 0.04em;
     }
-    @media (max-width: 768px) {
-      section {
-        padding: 60px 6%;
-      }
+    .nav-logo span { color: var(--accent-a); }
+    .nav-links { display: flex; gap: 32px; list-style: none; }
+    .nav-links a { font-size: 0.88rem; color: var(--text-mid); transition: color 0.2s; }
+    .nav-links a:hover { color: var(--text-hi); }
+    .nav-cta {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 9px 22px;
+      border-radius: 50px;
+      border: 1.5px solid var(--accent-a);
+      color: var(--accent-a);
+      background: transparent;
+      transition: background 0.25s, color 0.25s;
     }
-
-    /* --- HERO SECTION --- */
+    .nav-cta:hover { background: var(--accent-a); color: var(--bg); }
+    @media (max-width: 680px) { .nav-links { display: none; } }
+ 
+    /* ── HERO ───────────────────────────────────────────── */
     .hero {
+      position: relative;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       text-align: center;
-      min-height: 100vh;
-      background: radial-gradient(circle at 50% 20%, rgba(0,255,200,0.1), transparent 70%), #0c0c0c;
+      padding: 140px 6% 100px;
+      overflow: hidden;
     }
+    .hero-glow {
+      position: absolute; inset: 0;
+      pointer-events: none; z-index: 0;
+    }
+    .hero-glow::before {
+      content: '';
+      position: absolute;
+      top: -10%; left: 50%;
+      transform: translateX(-50%);
+      width: 700px; height: 700px;
+      background: radial-gradient(ellipse, rgba(0,255,194,0.13) 0%, transparent 65%);
+      animation: pulse-glow 7s ease-in-out infinite alternate;
+    }
+    .hero-glow::after {
+      content: '';
+      position: absolute;
+      bottom: 0; right: -10%;
+      width: 500px; height: 500px;
+      background: radial-gradient(ellipse, rgba(176,107,255,0.1) 0%, transparent 65%);
+      animation: pulse-glow 9s ease-in-out 2s infinite alternate-reverse;
+    }
+    @keyframes pulse-glow {
+      from { transform: translateX(-50%) scale(1); opacity: 0.7; }
+      to   { transform: translateX(-50%) scale(1.15); opacity: 1; }
+    }
+    .hero > * { position: relative; z-index: 1; }
+ 
     .hero h1 {
-      font-size: 2.8rem;
-      margin-bottom: 1rem;
-      letter-spacing: -0.02em;
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: clamp(2.4rem, 6vw, 4.8rem);
+      letter-spacing: -0.03em;
+      line-height: 1.08;
+      margin-bottom: 18px;
+      animation: fade-up 0.9s var(--ease-out) 0.05s both;
     }
     .hero p.tagline {
-      font-size: 1.2rem;
-      margin-bottom: 2rem;
+      font-size: clamp(1rem, 2vw, 1.2rem);
       color: #9fd0ff;
+      margin-bottom: 44px;
+      font-weight: 300;
+      animation: fade-up 0.9s var(--ease-out) 0.15s both;
     }
-    .hero .hero-image {object-fit: cover;
-      width: 300px;
-      height: 300px;
-      margin-bottom: 2rem;
-      background: linear-gradient(145deg, #121212, #1e1e1e);
+ 
+    /* Device orb */
+    .hero-device-wrap {
+      position: relative;
+      width: 280px; height: 280px;
+      margin: 0 auto 52px;
+      animation: fade-up 1s var(--ease-out) 0.1s both;
+    }
+    .hero-orb-ring {
+      position: absolute;
+      inset: -18px;
       border-radius: 50%;
-      box-shadow: 0 0 50px rgba(0,255,200,0.15);
+      border: 1px solid rgba(0,255,194,0.15);
+      animation: spin-slow 18s linear infinite;
+    }
+    .hero-orb-ring::before {
+      content: '';
+      position: absolute;
+      top: -3px; left: 50%;
+      transform: translateX(-50%);
+      width: 6px; height: 6px;
+      background: var(--accent-a);
+      border-radius: 50%;
+      box-shadow: 0 0 12px var(--accent-a);
+    }
+    .hero-orb-ring-2 {
+      position: absolute;
+      inset: -38px;
+      border-radius: 50%;
+      border: 1px solid rgba(0,153,255,0.08);
+      animation: spin-slow 30s linear infinite reverse;
+    }
+    @keyframes spin-slow { to { transform: rotate(360deg); } }
+ 
+    .hero-device {
+      width: 100%; height: 100%;
+      border-radius: 50%;
+      background: radial-gradient(circle at 38% 36%, #1a2535, #0b0f16);
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow:
+        0 0 60px rgba(0,255,194,0.12),
+        0 0 120px rgba(0,153,255,0.07),
+        inset 0 1px 0 rgba(255,255,255,0.07);
+      overflow: hidden;
+    }
+    .hero-device img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+ 
+    /* Floating metric chips */
+    .metric-chip {
+      position: absolute;
+      background: rgba(14,19,24,0.92);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 50px;
+      padding: 7px 14px;
+      font-size: 0.78rem;
+      font-weight: 500;
       display: flex;
       align-items: center;
-      justify-content: center;
-      color: rgba(255,255,255,0.2);
-      font-size: 0.9rem;
-      letter-spacing: 1px;
+      gap: 7px;
+      backdrop-filter: blur(12px);
+      white-space: nowrap;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
     }
+    .chip-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .chip-1 { top: 8%;    left: -30%; animation: float-a 4s ease-in-out infinite; }
+    .chip-2 { bottom: 14%; left: -22%; animation: float-b 5s ease-in-out 0.5s infinite; }
+    .chip-3 { top: 18%;   right: -28%; animation: float-a 4.5s ease-in-out 1s infinite; }
+    .chip-4 { bottom: 8%; right: -20%; animation: float-b 5s ease-in-out 1.5s infinite; }
+    @keyframes float-a { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+    @keyframes float-b { 0%,100% { transform: translateY(0); } 50% { transform: translateY(8px); } }
+    @media (max-width: 540px) { .metric-chip { display: none; } }
+ 
+    /* CTA button */
     .cta-button {
-      background: linear-gradient(90deg, #00ffcc, #00aaff);
-      color: #0c0c0c;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 15px 36px;
+      border-radius: 50px;
       border: none;
-      border-radius: 30px;
-      padding: 14px 36px;
+      font-family: 'Syne', sans-serif;
       font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      font-weight: 700;
+      background: linear-gradient(90deg, #00ffcc, #00aaff);
+      color: #06090d;
+      letter-spacing: 0.02em;
+      transition: transform 0.3s var(--ease-out), box-shadow 0.3s;
+      animation: fade-up 0.9s var(--ease-out) 0.25s both;
     }
     .cta-button:hover {
       transform: translateY(-3px);
-      box-shadow: 0 0 25px rgba(0,255,200,0.3);
+      box-shadow: 0 14px 40px rgba(0,255,200,0.3);
     }
-
-    /* --- THE PROBLEM --- */
+ 
+    /* ── SHARED SECTION STYLES ──────────────────────────── */
+    section { padding: 120px 6%; }
+    .section-label { margin-bottom: 14px; }
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+      margin: 0 6%;
+    }
+ 
+    /* ── PROBLEM ────────────────────────────────────────── */
     .problem {
       max-width: 800px;
       margin: 0 auto;
       text-align: center;
     }
+    .problem h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 20px;
+    }
     .problem p {
       font-size: 1.1rem;
-      color: #b0b0b0;
+      color: var(--text-mid);
+      font-weight: 300;
+      line-height: 1.85;
       margin-top: 1rem;
     }
-
-    /* --- HOW IT WORKS --- */
-    .features {
-      text-align: center;
+    .problem strong { color: var(--text-hi); font-weight: 500; }
+ 
+    /* ── HOW IT WORKS ───────────────────────────────────── */
+    .features { text-align: center; }
+    .features h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 48px;
     }
     .features-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 40px;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 24px;
       margin-top: 2rem;
     }
     .feature-card {
-      background: #141414;
-      border-radius: 12px;
-      padding: 30px;
-      border: 1px solid #1e1e1e;
-      transition: transform 0.3s ease, border-color 0.3s ease;
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      padding: 40px 32px;
+      border: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.4s var(--ease-out), border-color 0.3s, box-shadow 0.3s;
+      text-align: left;
+    }
+    .feature-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: radial-gradient(circle at 50% 0%, rgba(0,255,194,0.06), transparent 60%);
+      opacity: 0;
+      transition: opacity 0.4s;
     }
     .feature-card:hover {
-      transform: translateY(-5px);
-      border-color: #00ffcc;
+      transform: translateY(-8px);
+      border-color: rgba(0,255,194,0.2);
+      box-shadow: 0 24px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(0,255,194,0.1);
     }
+    .feature-card:hover::after { opacity: 1; }
+    .step-number {
+      font-family: 'Syne', sans-serif;
+      font-size: 4rem;
+      font-weight: 800;
+      color: rgba(255,255,255,0.04);
+      position: absolute;
+      top: 12px; right: 24px;
+      line-height: 1;
+      pointer-events: none;
+    }
+    .step-icon-wrap {
+      width: 52px; height: 52px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      font-size: 1.5rem;
+    }
+    .icon-green  { background: rgba(0,255,194,0.1);   border: 1px solid rgba(0,255,194,0.2); }
+    .icon-blue   { background: rgba(0,153,255,0.1);   border: 1px solid rgba(0,153,255,0.2); }
+    .icon-purple { background: rgba(176,107,255,0.1); border: 1px solid rgba(176,107,255,0.2); }
     .feature-card h3 {
-      margin-bottom: 1rem;
+      font-family: 'Syne', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 12px;
       color: #00d9ff;
     }
     .feature-card p {
-      color: #b5b5b5;
-      font-size: 0.95rem;
+      color: var(--text-mid);
+      font-size: 0.93rem;
+      line-height: 1.75;
+      font-weight: 300;
     }
-
-    /* --- TARGET MARKET --- */
+ 
+    /* ── BIOMARKER MARQUEE ──────────────────────────────── */
+    .biomarkers-strip {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 28px 0;
+      overflow: hidden;
+    }
+    .biomarkers-inner {
+      display: flex;
+      gap: 48px;
+      animation: marquee 22s linear infinite;
+      white-space: nowrap;
+    }
+    .biomarker-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.82rem;
+      color: var(--text-mid);
+      flex-shrink: 0;
+    }
+    .biomarker-item::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent-a);
+      opacity: 0.6;
+    }
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+ 
+    /* ── TARGET MARKET ──────────────────────────────────── */
     .target {
       max-width: 750px;
       margin: 0 auto;
       text-align: center;
-      color: #c0c0c0;
+      color: var(--text-mid);
     }
     .target h2 {
-      margin-bottom: 1rem;
-      color: #00ffcc;
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 20px;
+      color: var(--accent-a);
     }
-
-    /* --- FOOTER --- */
+    .target p {
+      font-size: 1.05rem;
+      font-weight: 300;
+      line-height: 1.85;
+    }
+ 
+    /* ── SOCIAL PROOF ───────────────────────────────────── */
+    .social-proof {
+      text-align: center;
+      background: var(--surface);
+      padding: 80px 6%;
+      border-top: 1px solid var(--border);
+    }
+    .social-proof h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(1.6rem, 3vw, 2.4rem);
+      font-weight: 800;
+      color: var(--accent-a);
+      margin-bottom: 36px;
+      letter-spacing: -0.02em;
+    }
+    .social-card {
+      max-width: 650px;
+      margin: 0 auto;
+      background: var(--bg);
+      padding: 40px 44px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      text-align: left;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+      position: relative;
+      overflow: hidden;
+    }
+    .social-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent-a), var(--accent-b), var(--accent-c));
+    }
+    .social-card p {
+      color: #e0e0e0;
+      font-size: 1.02rem;
+      line-height: 1.8;
+      font-weight: 300;
+    }
+    .social-card strong { color: #00d9ff; font-weight: 600; }
+    .social-hashtags {
+      display: block;
+      margin-top: 20px;
+      color: var(--accent-b);
+      font-size: 0.88em;
+    }
+ 
+    /* ── FOOTER ─────────────────────────────────────────── */
     footer {
       text-align: center;
-      padding: 40px 10%;
-      border-top: 1px solid #1e1e1e;
+      padding: 48px 6%;
+      border-top: 1px solid var(--border);
       font-size: 0.9rem;
-      color: #777;
+      color: var(--text-lo);
     }
-    footer a {
-      color: #00aaff;
-      transition: color 0.2s ease;
+    footer a { color: var(--accent-b); transition: color 0.2s ease; }
+    footer a:hover { color: var(--accent-a); }
+ 
+    /* ── ANIMATIONS ─────────────────────────────────────── */
+    @keyframes fade-up {
+      from { opacity: 0; transform: translateY(28px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
-    footer a:hover {
-      color: #00ffcc;
+    .reveal {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.7s var(--ease-out), transform 0.7s var(--ease-out);
     }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+ 
+    /* ── SCROLLBAR ──────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: #1e2a38; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #2e3f52; }
   </style>
 </head>
 <body>
-
+ 
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">aura<span>.</span></div>
+    <ul class="nav-links">
+      <li><a href="#problem">The Problem</a></li>
+      <li><a href="#how">How It Works</a></li>
+      <li><a href="#preorder">Who It's For</a></li>
+    </ul>
+    <button class="nav-cta" onclick="scrollToPreorder()">Pre-Order Now</button>
+  </nav>
+ 
   <!-- HERO -->
   <section class="hero">
+    <div class="hero-glow" aria-hidden="true"></div>
+ 
     <h1>Aura Metabolic Compass</h1>
     <p class="tagline">Bridging the gap between feeling fine and optimal health.</p>
-    <img class="hero-image" src="hero-image.png" alt="Aura Metabolic Compass Device" />
+ 
+    <div class="hero-device-wrap">
+      <div class="hero-orb-ring-2"></div>
+      <div class="hero-orb-ring"></div>
+      <div class="hero-device">
+        <img src="hero-image.png" alt="Aura Metabolic Compass Device" />
+      </div>
+      <div class="metric-chip chip-1"><div class="chip-dot" style="background:#00ffc2"></div>Metabolic Score: 84</div>
+      <div class="metric-chip chip-2"><div class="chip-dot" style="background:#f59e0b"></div>Acetone 1.2 ppm</div>
+      <div class="metric-chip chip-3"><div class="chip-dot" style="background:#0099ff"></div>Gut Health: Good</div>
+      <div class="metric-chip chip-4"><div class="chip-dot" style="background:#b06bff"></div>Stress Index: Low</div>
+    </div>
+ 
     <button class="cta-button" onclick="scrollToPreorder()">Pre-Order Now</button>
   </section>
-
+ 
+  <div class="divider"></div>
+ 
+  <!-- BIOMARKER MARQUEE -->
+  <div class="biomarkers-strip" aria-hidden="true">
+    <div class="biomarkers-inner">
+      <div class="biomarker-item">Acetone — Fat Metabolism</div>
+      <div class="biomarker-item">Ammonia — Protein Load</div>
+      <div class="biomarker-item">Methane — Gut Microbiome</div>
+      <div class="biomarker-item">Hydrogen Sulfide — Oxidative Stress</div>
+      <div class="biomarker-item">Isoprene — Cholesterol Synthesis</div>
+      <div class="biomarker-item">Nitric Oxide — Cardiovascular Health</div>
+      <div class="biomarker-item">CO₂ Ratio — Cellular Respiration</div>
+      <div class="biomarker-item">Ethanol — Fermentation Markers</div>
+      <!-- duplicate for seamless loop -->
+      <div class="biomarker-item">Acetone — Fat Metabolism</div>
+      <div class="biomarker-item">Ammonia — Protein Load</div>
+      <div class="biomarker-item">Methane — Gut Microbiome</div>
+      <div class="biomarker-item">Hydrogen Sulfide — Oxidative Stress</div>
+      <div class="biomarker-item">Isoprene — Cholesterol Synthesis</div>
+      <div class="biomarker-item">Nitric Oxide — Cardiovascular Health</div>
+      <div class="biomarker-item">CO₂ Ratio — Cellular Respiration</div>
+      <div class="biomarker-item">Ethanol — Fermentation Markers</div>
+    </div>
+  </div>
+ 
   <!-- PROBLEM -->
-  <section class="problem">
-    <h2>The Problem</h2>
-    <p>Modern healthcare excels at detecting disease early — but not at optimizing health before symptoms appear. <strong>Aura</strong> bridges that gap: turning invisible metabolic signals into daily insights for proactive, pre-symptomatic health optimization.</p>
+  <section id="problem">
+    <div class="problem reveal">
+      <h2>The Problem</h2>
+      <p>Modern healthcare excels at detecting disease early — but not at optimizing health before symptoms appear. <strong>Aura</strong> bridges that gap: turning invisible metabolic signals into daily insights for proactive, pre-symptomatic health optimization.</p>
+    </div>
   </section>
-
+ 
+  <div class="divider"></div>
+ 
   <!-- HOW IT WORKS -->
-  <section class="features">
-    <h2>How It Works</h2>
+  <section id="how" class="features">
+    <div class="reveal">
+      <h2>How It Works</h2>
+    </div>
     <div class="features-grid">
-      <div class="feature-card">
+      <div class="feature-card reveal">
+        <div class="step-number">01</div>
+        <div class="step-icon-wrap icon-green">🌬️</div>
         <h3>Breath Capture</h3>
         <p>Just 5 seconds each day. Aura collects your exhaled VOCs for precise metabolic measurement.</p>
       </div>
-      <div class="feature-card">
+      <div class="feature-card reveal" style="transition-delay:0.1s">
+        <div class="step-number">02</div>
+        <div class="step-icon-wrap icon-blue">🔬</div>
         <h3>Molecular Analysis</h3>
         <p>Our sensor detects biomarkers like Acetone, Ammonia, and Methane — key indicators of fat burn, protein load, and gut health.</p>
       </div>
-      <div class="feature-card">
+      <div class="feature-card reveal" style="transition-delay:0.2s">
+        <div class="step-number">03</div>
+        <div class="step-icon-wrap icon-purple">✨</div>
         <h3>AI‑Driven Insights</h3>
-        <p>Aura’s app delivers an intuitive “Internal Weather Report,” transforming data into actionable lifestyle recommendations.</p>
+        <p>Aura's app delivers an intuitive "Internal Weather Report," transforming data into actionable lifestyle recommendations.</p>
       </div>
     </div>
   </section>
-
+ 
+  <div class="divider"></div>
+ 
   <!-- TARGET MARKET -->
   <section class="target" id="preorder">
-    <h2>Target Market</h2>
-    <p>Designed for high-performing urban professionals who view their body as an investment — entrepreneurs, executives, and wellness‑focused individuals seeking an edge in performance and longevity.</p>
-  </section>
-
-  <section class="social-proof" style="text-align: center; background: #111; padding: 60px 10%; border-top: 1px solid #1e1e1e;">
-    <h2 style="color: #00ffcc; margin-bottom: 30px;">Join the Movement</h2>
-    <div style="max-width: 650px; margin: 0 auto; background: #141414; padding: 40px; border-radius: 12px; border: 1px solid #1e1e1e; text-align: left; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-      <p style="color: #e0e0e0; font-size: 1.05rem; line-height: 1.6;">
-        Why are you actually tired? (Hint: It’s not just the coffee.) ☕️📉<br><br>
-        Stop guessing. Start knowing.<br><br>
-        Meet the Aura Metabolic Compass. It’s a pocket-sized lab that turns one breath into a daily "Internal Weather Report." 🌬️✨<br><br>
-        While everyone else is tracking steps, you’re tracking the data that actually matters:<br><br>
-        <strong style="color: #00d9ff;">Metabolic Score:</strong> Are you burning fat or just crashing on sugar?<br>
-        <strong style="color: #00d9ff;">Stress Levels:</strong> Is that 11 AM meeting actually wrecking your recovery?<br>
-        <strong style="color: #00d9ff;">Gut Health:</strong> Finally know which "healthy" lunch is bloating you.<br><br>
-        No needles. No clinic. No 3-month wait for blood work. Just 60 seconds and your phone. 📱<br><br>
-        The Launch Drop is LIVE. 🚀<br><br>
-        We’re releasing a limited batch for early adopters today. Once they’re gone, the waitlist opens.<br><br>
-        Comment "DECODE" below and I’ll DM you the private link to skip the line. 👇<br><br>
-        <span style="color: #00aaff; font-size: 0.9em;">#AuraLaunch #Biohacking #Performance #ModernHealth #WorkLifeBalance #Metabolism</span>
-      </p>
+    <div class="reveal">
+      <h2>Target Market</h2>
+      <p>Designed for high-performing urban professionals who view their body as an investment — entrepreneurs, executives, and wellness‑focused individuals seeking an edge in performance and longevity.</p>
     </div>
   </section>
-
+ 
+  <!-- SOCIAL PROOF -->
+  <section class="social-proof reveal">
+    <h2>Join the Movement</h2>
+    <div class="social-card">
+      <p>
+        Why are you actually tired? (Hint: It's not just the coffee.) ☕️📉<br><br>
+        Stop guessing. Start knowing.<br><br>
+        Meet the Aura Metabolic Compass. It's a pocket-sized lab that turns one breath into a daily "Internal Weather Report." 🌬️✨<br><br>
+        While everyone else is tracking steps, you're tracking the data that actually matters:<br><br>
+        <strong>Metabolic Score:</strong> Are you burning fat or just crashing on sugar?<br>
+        <strong>Stress Levels:</strong> Is that 11 AM meeting actually wrecking your recovery?<br>
+        <strong>Gut Health:</strong> Finally know which "healthy" lunch is bloating you.<br><br>
+        No needles. No clinic. No 3-month wait for blood work. Just 60 seconds and your phone. 📱<br><br>
+        The Launch Drop is LIVE. 🚀<br><br>
+        We're releasing a limited batch for early adopters today. Once they're gone, the waitlist opens.<br><br>
+        Comment "DECODE" below and I'll DM you the private link to skip the line. 👇
+      </p>
+      <span class="social-hashtags">#AuraLaunch #Biohacking #Performance #ModernHealth #WorkLifeBalance #Metabolism</span>
+    </div>
+  </section>
+ 
   <!-- FOOTER -->
   <footer>
     &copy; 2024 Aura Metabolic Compass. All rights reserved. |
     <a href="mailto:contact@auracompass.com">contact@auracompass.com</a>
   </footer>
-
-  <!-- BASIC JAVASCRIPT -->
+ 
   <script>
     function scrollToPreorder() {
       document.getElementById('preorder').scrollIntoView({ behavior: 'smooth' });
     }
+ 
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) entry.target.classList.add('visible');
+      });
+    }, { threshold: 0.12 });
+ 
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
   </script>
-
+ 
 </body>
 </html>
